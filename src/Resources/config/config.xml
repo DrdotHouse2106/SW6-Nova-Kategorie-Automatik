@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Kategorie-Automatik</title>
+        <title lang="en-GB">Category automation</title>
+
+        <input-field type="bool">
+            <name>active</name>
+            <label>Aktiv</label>
+            <label lang="en-GB">Active</label>
+            <helpText>Ordnet Artikel beim Speichern (weclapp-Abgleich, Administration, Import) automatisch den Kategorien mit passendem Teileart-Code zu. Gilt für alle Verkaufskanäle, nur unter „Alle Verkaufskanäle“ einstellen.</helpText>
+            <helpText lang="en-GB">Assigns products on save to categories with a matching code. Applies to all sales channels.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <component name="sw-entity-multi-id-select">
+            <name>propertyGroupIds</name>
+            <entity>property_group</entity>
+            <label>Eigenschaften mit dem Teileart-Code</label>
+            <label lang="en-GB">Properties holding the part type code</label>
+            <helpText>Z. B. „Teileart“ und „Weitere Teilearten“. Die Werte müssen mit dem Code beginnen, z. B. „621 Bremsbacken“.</helpText>
+            <helpText lang="en-GB">E.g. "Teileart" and "Weitere Teilearten". Values must start with the code, e.g. "621 Brake shoes".</helpText>
+        </component>
+
+        <input-field type="bool">
+            <name>hideProperties</name>
+            <label>Diese Eigenschaften im Shop verbergen</label>
+            <label lang="en-GB">Hide these properties in the storefront</label>
+            <helpText>Schaltet bei den gewählten Eigenschaften „Im Produktfilter anzeigen“ und „Auf Produktdetailseite anzeigen“ aus, damit die Codes für Kunden unsichtbar bleiben.</helpText>
+            <helpText lang="en-GB">Turns off filter and product detail display for the selected properties.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>rebuildNow</name>
+            <label>Beim Speichern alle Artikel neu zuordnen</label>
+            <label lang="en-GB">Reassign all products on save</label>
+            <helpText>Einmalig nach dem Anlegen oder Ändern von Kategorie-Codes einschalten und speichern. Die Zuordnung läuft im Hintergrund (Nachrichtenwarteschlange) in Paketen; der Schalter springt danach von selbst zurück.</helpText>
+            <helpText lang="en-GB">Turn on and save once after creating or changing category codes. Runs in the background; the switch resets itself.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+    </card>
+</config>
