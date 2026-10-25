@@ -38,7 +38,8 @@ class CategoryAssigner
 
     public function isActive(): bool
     {
-        return $this->config->getBool(self::CONFIG . 'active') && $this->getGroupIds() !== [];
+        // Codes kommen aus den Zusatzfeldern am Produkt (immer) und optional aus Eigenschaften
+        return $this->config->getBool(self::CONFIG . 'active');
     }
 
     /**
@@ -194,6 +195,33 @@ class CategoryAssigner
      */
     private function loadProductCodes(array $productIds): array
     {
+        $codes = [];
+
+        // 1. Zusatzfelder am Produkt (z. B. von weclapp als Artikelattribut übertragen) – im Shop unsichtbar
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_id)) AS product_id, custom_fields
+             FROM product_translation
+             WHERE product_id IN (:ids) AND product_version_id = :live AND custom_fields IS NOT NULL',
+            ['ids' => Uuid::fromHexToBytesList($productIds), 'live' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        foreach ($rows as $row) {
+            $fields = json_decode((string) $row['custom_fields'], true);
+            if (!\is_array($fields)) {
+                continue;
+            }
+            foreach (NovaKategorieAutomatik::PRODUCT_FIELDS as $field) {
+                foreach (self::extractCodes($fields[$field] ?? null) as $code) {
+                    $codes[$row['product_id']][$code] = $code;
+                }
+            }
+        }
+
+        // 2. Eigenschaften (optional)
+        if ($this->getGroupIds() === []) {
+            return array_map(static fn (array $c): array => array_values($c), $codes);
+        }
+
         $rows = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(pp.product_id)) AS product_id, t.name
              FROM product_property pp
@@ -208,14 +236,40 @@ class CategoryAssigner
             ['ids' => ArrayParameterType::BINARY, 'groups' => ArrayParameterType::BINARY]
         );
 
-        $codes = [];
         foreach ($rows as $row) {
-            if (preg_match('/^\s*(\d{1,4})(?!\d)/', (string) $row['name'], $match)) {
-                $codes[$row['product_id']][$match[1]] = $match[1];
+            foreach (self::extractCodes($row['name']) as $code) {
+                $codes[$row['product_id']][$code] = $code;
             }
         }
 
         return array_map(static fn (array $c): array => array_values($c), $codes);
+    }
+
+    /**
+     * Codes aus einem Feldwert: „621 Bremsbacken“, „621, 632“, „621 Bremsbacken|632 Radbremszylinder“ oder Liste.
+     *
+     * @return list<string>
+     */
+    public static function extractCodes(mixed $value): array
+    {
+        if (\is_array($value)) {
+            $items = $value;
+        } elseif (\is_string($value) || \is_int($value)) {
+            $value = (string) $value;
+            $decoded = str_starts_with(ltrim($value), '[') ? json_decode($value, true) : null;
+            $items = \is_array($decoded) ? $decoded : (preg_split('/[,;|\n]+/', $value) ?: []);
+        } else {
+            return [];
+        }
+
+        $codes = [];
+        foreach ($items as $item) {
+            if ((\is_string($item) || \is_int($item)) && preg_match('/^\s*(\d{1,4})(?!\d)/', (string) $item, $match)) {
+                $codes[$match[1]] = $match[1];
+            }
+        }
+
+        return array_values($codes);
     }
 
     /**

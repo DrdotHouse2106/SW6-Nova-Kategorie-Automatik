@@ -32,6 +32,7 @@ class ProductWrittenSubscriber implements EventSubscriberInterface
             ProductEvents::PRODUCT_WRITTEN_EVENT => 'onProductWritten',
             'product_property.written' => 'onProductPropertyWritten',
             'product_property.deleted' => 'onProductPropertyWritten',
+            'product_translation.written' => 'onProductPropertyWritten',
             'category.written' => 'onCategoryWritten',
             SystemConfigChangedEvent::class => 'onConfigChanged',
         ];

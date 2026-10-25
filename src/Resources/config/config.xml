@@ -18,9 +18,9 @@
         <component name="sw-entity-multi-id-select">
             <name>propertyGroupIds</name>
             <entity>property_group</entity>
-            <label>Eigenschaften mit dem Teileart-Code</label>
-            <label lang="en-GB">Properties holding the part type code</label>
-            <helpText>Z. B. „Teileart“ und „Weitere Teilearten“. Die Werte müssen mit dem Code beginnen, z. B. „621 Bremsbacken“.</helpText>
+            <label>Zusätzlich: Eigenschaften mit dem Teileart-Code</label>
+            <label lang="en-GB">Additionally: properties holding the part type code</label>
+            <helpText>Optional. Standardweg sind die Zusatzfelder „Teileart“ und „Weitere Teilearten“ am Produkt (Set „Teileart (Nova Kategorie-Automatik)“, technisch nova_teileart / nova_weitere_teilearten). Hier zusätzlich Eigenschaften wählen, deren Werte mit dem Code beginnen, z. B. „621 Bremsbacken“.</helpText>
             <helpText lang="en-GB">E.g. "Teileart" and "Weitere Teilearten". Values must start with the code, e.g. "621 Brake shoes".</helpText>
         </component>
 

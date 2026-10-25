@@ -16,11 +16,16 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 class NovaKategorieAutomatik extends Plugin
 {
     public const CODE_FIELD = 'nova_kategorie_code';
+    /** Zusatzfelder am Produkt, die die Codes tragen (z. B. von weclapp befüllt) */
+    public const PRODUCT_FIELDS = ['nova_teileart', 'nova_weitere_teilearten'];
 
     /** Feste IDs, damit Installation und Update dasselbe Zusatzfeld pflegen */
     private const SET_ID = '4f2b8c1d6e3a4b7c9d0e1f2a3b4c5d60';
     private const SET_RELATION_ID = '4f2b8c1d6e3a4b7c9d0e1f2a3b4c5d61';
     private const FIELD_ID = '4f2b8c1d6e3a4b7c9d0e1f2a3b4c5d62';
+    private const PRODUCT_SET_ID = '4f2b8c1d6e3a4b7c9d0e1f2a3b4c5d70';
+    private const PRODUCT_SET_RELATION_ID = '4f2b8c1d6e3a4b7c9d0e1f2a3b4c5d71';
+    private const PRODUCT_FIELD_IDS = ['nova_teileart' => '4f2b8c1d6e3a4b7c9d0e1f2a3b4c5d72', 'nova_weitere_teilearten' => '4f2b8c1d6e3a4b7c9d0e1f2a3b4c5d73'];
 
     public function install(InstallContext $installContext): void
     {
@@ -45,7 +50,7 @@ class NovaKategorieAutomatik extends Plugin
         // Feste Zuordnungen bleiben bestehen (normale Shopware-Daten), nur das Zusatzfeld verschwindet
         $repository = $this->container?->get('custom_field_set.repository');
         if ($repository instanceof EntityRepository) {
-            $repository->delete([['id' => self::SET_ID]], $uninstallContext->getContext());
+            $repository->delete([['id' => self::SET_ID], ['id' => self::PRODUCT_SET_ID]], $uninstallContext->getContext());
         }
     }
 
@@ -75,6 +80,30 @@ class NovaKategorieAutomatik extends Plugin
                     'customFieldType' => 'text',
                     'type' => 'text',
                     'customFieldPosition' => 1,
+                ],
+            ]],
+        ], [
+            'id' => self::PRODUCT_SET_ID,
+            'name' => 'nova_teileart',
+            'config' => ['label' => ['de-DE' => 'Teileart (Nova Kategorie-Automatik)', 'en-GB' => 'Part type (Nova)']],
+            'relations' => [['id' => self::PRODUCT_SET_RELATION_ID, 'entityName' => 'product']],
+            'customFields' => [[
+                'id' => self::PRODUCT_FIELD_IDS['nova_teileart'],
+                'name' => 'nova_teileart',
+                'type' => CustomFieldTypes::TEXT,
+                'config' => [
+                    'label' => ['de-DE' => 'Teileart', 'en-GB' => 'Part type'],
+                    'helpText' => ['de-DE' => 'Z. B. „621 Bremsbacken“ – maßgeblich sind die führenden Ziffern. Wird von weclapp übertragen. Im Shop nicht sichtbar.', 'en-GB' => 'E.g. "621 Brake shoes" – leading digits count.'],
+                    'componentName' => 'sw-field', 'customFieldType' => 'text', 'type' => 'text', 'customFieldPosition' => 1,
+                ],
+            ], [
+                'id' => self::PRODUCT_FIELD_IDS['nova_weitere_teilearten'],
+                'name' => 'nova_weitere_teilearten',
+                'type' => CustomFieldTypes::TEXT,
+                'config' => [
+                    'label' => ['de-DE' => 'Weitere Teilearten', 'en-GB' => 'Further part types'],
+                    'helpText' => ['de-DE' => 'Mehrere Werte mit Komma, z. B. „632 Radbremszylinder, 654 Dichtungen & Leitungen“. Im Shop nicht sichtbar.', 'en-GB' => 'Several values separated by commas.'],
+                    'componentName' => 'sw-field', 'customFieldType' => 'text', 'type' => 'text', 'customFieldPosition' => 2,
                 ],
             ]],
         ]], $context);
