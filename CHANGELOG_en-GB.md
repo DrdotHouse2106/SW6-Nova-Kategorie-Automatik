@@ -1,3 +1,6 @@
+# 1.1.1
+- German configuration labels now shown in the German administration
+
 # 1.1.0
 - Codes also read from product custom fields nova_teileart / nova_weitere_teilearten; properties optional
 

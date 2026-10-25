@@ -47,6 +47,12 @@ Shopware-6-Plugin: ordnet Artikel **fest** den Kategorien zu, deren **Teileart-C
 **Lösung:** In der weclapp-Shop-Anbindung die Felder „Teileart“ und „Weitere Teilearten“ statt auf eine Eigenschaft auf die **Artikelattribute** `nova_teileart` und `nova_weitere_teilearten` zuordnen (ab 1.1.0). Textwerte brauchen keine Ausprägungen
 
 
+### Konfiguration erscheint auf Englisch (bis 1.1.0)
+
+**Ursache:** In der `config.xml` gilt ein Text ohne `lang`-Angabe als englischer Standardtext; die deutschen Texte hatten keine Angabe `lang="de-DE"`
+
+**Lösung:** Auf 1.1.1 aktualisieren. Die Einstellungen sind unverändert, nur die Beschriftung ist jetzt deutsch („Reassign all products on save“ = „Beim Speichern alle Artikel neu zuordnen“)
+
 ### Nach „Neu zuordnen“ passiert nichts
 
 **Ursache:** Die Nachrichtenwarteschlange wird nicht abgearbeitet (z. B. Admin-Worker aus, kein Cronjob für `messenger:consume`)
