@@ -1,3 +1,6 @@
+# 1.1.2
+- Own plugin icon (previously showed the Nova Upload icon by mistake)
+
 # 1.1.1
 - German configuration labels now shown in the German administration
 

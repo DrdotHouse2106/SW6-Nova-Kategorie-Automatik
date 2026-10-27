@@ -2,7 +2,7 @@
     "name": "nova/nova-kategorie-automatik",
     "description": "Feste Kategoriezuordnung für Shopware 6 anhand einer Teileart-Eigenschaft und eines Codes an der Kategorie",
     "type": "shopware-platform-plugin",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "license": "MIT",
     "authors": [
         {

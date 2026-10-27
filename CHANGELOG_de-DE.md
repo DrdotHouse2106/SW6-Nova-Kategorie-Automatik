@@ -1,3 +1,6 @@
+# 1.1.2
+- Eigenes Plugin-Icon (bisher versehentlich das Icon von Nova Upload)
+
 # 1.1.1
 - Konfiguration in der deutschen Administration jetzt auf Deutsch (Texte waren ohne Sprachkennung und erschienen deshalb englisch)
 
