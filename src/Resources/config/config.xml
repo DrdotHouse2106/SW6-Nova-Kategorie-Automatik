@@ -37,8 +37,8 @@
             <name>rebuildNow</name>
             <label lang="de-DE">Beim Speichern alle Artikel neu zuordnen</label>
             <label lang="en-GB">Reassign all products on save</label>
-            <helpText lang="de-DE">Einmalig nach dem Anlegen oder Ändern von Kategorie-Codes einschalten und speichern. Die Zuordnung läuft im Hintergrund (Nachrichtenwarteschlange) in Paketen; der Schalter springt danach von selbst zurück.</helpText>
-            <helpText lang="en-GB">Turn on and save once after creating or changing category codes. Runs in the background; the switch resets itself.</helpText>
+            <helpText lang="de-DE">Einmalig nach dem Anlegen oder Ändern von Kategorie-Codes einschalten und speichern. Die Zuordnung läuft im Hintergrund (Nachrichtenwarteschlange) in Paketen. Der Schalter wird gespeichert wieder ausgeschaltet; die Maske zeigt das erst nach dem Neuladen der Seite. Erneutes Speichern startet keine zweite Neuzuordnung, solange eine mit denselben Codes läuft; nach geänderten Codes löst eine neue die laufende ab. Verlauf unter Einstellungen → System → Ereignisprotokoll.</helpText>
+            <helpText lang="en-GB">Turn on and save once after creating or changing category codes. Runs in the background; the stored value resets itself (reload the page to see it). Saving again does not start a second run while one with the same codes is running. History: Settings → System → Event logs.</helpText>
             <defaultValue>false</defaultValue>
         </input-field>
     </card>

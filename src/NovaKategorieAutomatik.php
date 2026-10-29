@@ -2,13 +2,19 @@
 
 namespace Nova\KategorieAutomatik;
 
+use Doctrine\DBAL\Connection;
+use Nova\KategorieAutomatik\Message\RebuildMessage;
+use Nova\KategorieAutomatik\Service\RebuildLock;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Nova Kategorie-Automatik – feste Kategoriezuordnung anhand eines Teileart-Codes.
@@ -37,6 +43,37 @@ class NovaKategorieAutomatik extends Plugin
     {
         parent::update($updateContext);
         $this->upsertCustomFields($updateContext->getContext());
+    }
+
+    /**
+     * Nach jedem Update einmal alle Artikel mit den aktuellen Codes neu zuordnen. Eine neue Kette löst
+     * eine laufende (auch aus der Vorversion eingereihte) ab, es läuft also nie mehr als eine.
+     */
+    public function postUpdate(UpdateContext $updateContext): void
+    {
+        parent::postUpdate($updateContext);
+
+        try {
+            $config = $this->container?->get(SystemConfigService::class);
+            $connection = $this->container?->get(Connection::class);
+            $bus = $this->container?->has('messenger.default_bus') ? $this->container->get('messenger.default_bus') : $this->container?->get(MessageBusInterface::class);
+            if (!$config instanceof SystemConfigService || !$connection instanceof Connection || !$bus instanceof MessageBusInterface) {
+                return;
+            }
+            if (!$updateContext->getPlugin()->isActive() || !$config->getBool('NovaKategorieAutomatik.config.active')) {
+                return;
+            }
+
+            $lock = new RebuildLock($connection);
+            $groupIds = $config->get('NovaKategorieAutomatik.config.propertyGroupIds');
+            $groupIds = \is_array($groupIds) ? array_values(array_filter($groupIds, static fn ($id): bool => \is_string($id) && Uuid::isValid($id))) : [];
+            $token = $lock->start($lock->fingerprint($groupIds), true);
+            if ($token !== null) {
+                $bus->dispatch(new RebuildMessage(0, $token));
+            }
+        } catch (\Throwable) {
+            // Das Update selbst darf daran nie scheitern; die Neuzuordnung lässt sich jederzeit per Schalter starten
+        }
     }
 
     public function uninstall(UninstallContext $uninstallContext): void

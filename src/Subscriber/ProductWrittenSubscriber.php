@@ -2,11 +2,10 @@
 
 namespace Nova\KategorieAutomatik\Subscriber;
 
-use Nova\KategorieAutomatik\Message\RebuildMessage;
 use Nova\KategorieAutomatik\Service\CategoryAssigner;
-use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,15 +28,39 @@ class ProductWrittenSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ProductEvents::PRODUCT_WRITTEN_EVENT => 'onProductWritten',
-            'product_property.written' => 'onProductPropertyWritten',
-            'product_property.deleted' => 'onProductPropertyWritten',
-            'product_translation.written' => 'onProductPropertyWritten',
+            // Einmal je Schreibvorgang (Artikel, Übersetzung und Eigenschaften zusammen), vor Shopwares Indexierung (1000)
+            EntityWrittenContainerEvent::class => ['onWritten', 1100],
             'category.written' => 'onCategoryWritten',
             SystemConfigChangedEvent::class => 'onConfigChanged',
         ];
     }
 
+    public function onWritten(EntityWrittenContainerEvent $event): void
+    {
+        if (!$this->isLive($event->getContext())) {
+            return;
+        }
+
+        $ids = [];
+        foreach ($event->getPrimaryKeys('product') as $id) {
+            if (\is_string($id)) {
+                $ids[$id] = $id;
+            }
+        }
+        foreach (['product_property', 'product_translation'] as $entity) {
+            foreach ($event->getPrimaryKeys($entity) as $key) {
+                if (\is_array($key) && isset($key['productId']) && \is_string($key['productId'])) {
+                    $ids[$key['productId']] = $key['productId'];
+                }
+            }
+        }
+
+        if ($ids !== []) {
+            $this->assigner->assign(array_values($ids), $event->getContext());
+        }
+    }
+
+    /** Nur noch für den Übergang, solange beim Update der alte Container läuft */
     public function onProductWritten(EntityWrittenEvent $event): void
     {
         if (!$this->isLive($event->getContext())) {
@@ -47,6 +70,7 @@ class ProductWrittenSubscriber implements EventSubscriberInterface
         $this->assigner->assign(array_values(array_filter($event->getIds(), 'is_string')), $event->getContext());
     }
 
+    /** Nur noch für den Übergang, solange beim Update der alte Container läuft */
     public function onProductPropertyWritten(EntityWrittenEvent $event): void
     {
         if (!$this->isLive($event->getContext())) {
@@ -83,11 +107,10 @@ class ProductWrittenSubscriber implements EventSubscriberInterface
         }
 
         if ($key === 'rebuildNow' && $event->getValue() === true) {
-            // Schalter sofort zurücksetzen, Neuzuordnung im Hintergrund starten
+            // Schalter sofort zurücksetzen, Neuzuordnung im Hintergrund starten (höchstens eine Kette)
             $this->config->set(CategoryAssigner::CONFIG . 'rebuildNow', false);
-            $this->assigner->resetCache();
             $this->assigner->hideProperties($context);
-            $this->bus->dispatch(new RebuildMessage(0));
+            $this->assigner->startRebuild($this->bus);
         }
     }
 

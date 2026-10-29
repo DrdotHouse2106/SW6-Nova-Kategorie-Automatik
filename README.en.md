@@ -6,7 +6,9 @@ Shopware 6 plugin: assigns products **permanently** to categories whose **part t
 - **Product code:** product custom fields `nova_teileart` / `nova_weitere_teilearten` (comma-separated), optionally property values; leading digits count (`621 Brake shoes`).
 - **On save** (ERP sync, administration, import) products are assigned to matching categories and outdated assignments removed. Only categories with a code are managed.
 - **Hidden properties:** the configured property groups are set to not filterable / not visible on the product page.
-- **Rebuild:** switch "Reassign all products on save" runs in the background in batches of 200 (requires the message queue).
+- **Rebuild:** switch "Reassign all products on save" runs in the background in batches of 200 (requires the message queue), always with the current codes; at most one run at a time. Started once automatically after each plugin update. The stored switch resets itself; reload the page to see it.
+- **Variants** are evaluated via their parent product and inherit its categories.
+- **Log:** removed assignments and rebuild start/end appear under Settings → System → Event logs.
 
 Configuration: *Extensions → My extensions → Nova Category Automation → Configure* (all sales channels).
 
