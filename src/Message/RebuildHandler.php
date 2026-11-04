@@ -42,7 +42,7 @@ class RebuildHandler
             if ($message->afterAutoIncrement === 0) {
                 $ignored = $this->assigner->ignoredCategoryCodes();
                 if ($ignored !== []) {
-                    $this->assigner->protocol(LogLevel::WARNING, 'Kategorie-Codes mit weniger als ' . CategoryAssigner::MIN_CODE_LENGTH . ' Ziffern werden ignoriert', [
+                    $this->assigner->protocol(LogLevel::WARNING, 'Einstellige Kategorie-Codes erfassen sehr viele Artikel (z. B. „1“ = 1…1999) – bitte prüfen, ob das gewollt ist', [
                         'codes' => $ignored,
                     ]);
                 }

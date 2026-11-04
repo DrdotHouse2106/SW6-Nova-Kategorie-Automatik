@@ -31,7 +31,7 @@ class CategoryAssigner
 {
     public const CONFIG = 'NovaKategorieAutomatik.config.';
 
-    /** Mindestlänge eines Kategorie-Codes; kürzere würden als Präfix zu viele Artikel erfassen */
+    /** Codes unter dieser Länge erfassen als Präfix sehr viele Artikel und werden beim Start einer Neuzuordnung gemeldet (aber angewendet) */
     public const MIN_CODE_LENGTH = 2;
 
     /** Nur diese Teile des Produkt-Indexers betreffen Kategorien; Preise, Bestand, Suche usw. bleiben unberührt */
@@ -317,7 +317,7 @@ class CategoryAssigner
     }
 
     /**
-     * Kategorie-Codes, die wegen zu geringer Länge ignoriert werden.
+     * Einstellige Kategorie-Codes (werden angewendet, aber beim Start einer Neuzuordnung gemeldet).
      *
      * @return list<string>
      */
@@ -351,10 +351,10 @@ class CategoryAssigner
                 if (preg_match('/^\d{1,4}$/', $code) !== 1) {
                     continue;
                 }
-                // Ein einstelliger Code wäre Präfix eines ganzen Tausenderblocks („1“ → 1…1999) – ignorieren
+                // Ein einstelliger Code ist Präfix eines ganzen Blocks („1“ → 1…1999). Gewollt z. B. für eine
+                // Sammelkategorie „Alle Teile“ (Codes 1,2,3…) – angewendet, aber beim Start gemeldet
                 if (\strlen($code) < self::MIN_CODE_LENGTH) {
                     $this->ignoredCodes[$code] = $code;
-                    continue;
                 }
                 $map[$code][$row['id']] = $row['id'];
             }

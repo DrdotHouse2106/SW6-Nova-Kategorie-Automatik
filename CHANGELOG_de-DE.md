@@ -1,3 +1,6 @@
+# 1.2.2
+- Einstellige Kategorie-Codes werden wieder angewendet (1.2.1 hat sie ignoriert und damit Sammelkategorien wie „Alle Teile“ mit `1,2,3,4,5,6,7,9` aus der Verwaltung genommen). Sie werden beim Start einer Neuzuordnung weiterhin als Warnung im Ereignisprotokoll gemeldet
+
 # 1.2.1
 - Nach einem Plugin-Update wird nicht mehr automatisch der ganze Katalog neu zugeordnet – nur noch beim Update von einer Version vor 1.2.0 (dort haben sich die Regeln für Varianten geändert). So ändert ein Update keine Zuordnungen unbeaufsichtigt, etwa wenn das ERP gerade leere Teileart-Felder liefert. Neuzuordnen wie gewohnt über „Beim Speichern alle Artikel neu zuordnen“
 - Bricht eine Neuzuordnung wegen eines Fehlers ab (z. B. Datenbank-Zeitüberschreitung), steht das jetzt als Fehler mit Ursache und Fortschritt im Ereignisprotokoll, und die Sperre wird sofort freigegeben (bisher erst nach 30 Minuten, ohne Eintrag)

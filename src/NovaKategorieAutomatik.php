@@ -119,8 +119,8 @@ class NovaKategorieAutomatik extends Plugin
                 'config' => [
                     'label' => ['de-DE' => 'Teileart-Code', 'en-GB' => 'Part type code'],
                     'helpText' => [
-                        'de-DE' => 'Z. B. 621 (mindestens zwei Ziffern). Artikel, deren Eigenschaft „Teileart“ oder „Weitere Teilearten“ mit diesem Code beginnt, werden dieser Kategorie fest zugeordnet. Mehrere Codes mit Komma trennen. Leer = Kategorie wird nicht automatisch befüllt. Der Code ist im Shop nicht sichtbar.',
-                        'en-GB' => 'E.g. 621 (at least two digits). Products whose part type property starts with this code are assigned to this category. Separate several codes with commas. Empty = not managed. Not visible in the storefront.',
+                        'de-DE' => 'Z. B. 621. Ein einstelliger Code (z. B. 1) erfasst alle Teilearten 1…1999. Artikel, deren Eigenschaft „Teileart“ oder „Weitere Teilearten“ mit diesem Code beginnt, werden dieser Kategorie fest zugeordnet. Mehrere Codes mit Komma trennen. Leer = Kategorie wird nicht automatisch befüllt. Der Code ist im Shop nicht sichtbar.',
+                        'en-GB' => 'E.g. 621. A single-digit code (e.g. 1) covers all part types 1…1999. Products whose part type property starts with this code are assigned to this category. Separate several codes with commas. Empty = not managed. Not visible in the storefront.',
                     ],
                     'componentName' => 'sw-field',
                     'customFieldType' => 'text',

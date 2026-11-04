@@ -2,7 +2,7 @@
 
 Shopware 6 plugin: assigns products **permanently** to categories whose **part type code** matches a product property – no dynamic product groups. Codes stay invisible in the storefront.
 
-- **Category code:** custom field "Teileart-Code" (e.g. `621`), several codes separated by commas; a code also matches as prefix (`62` covers 620–629). Category codes need at least two digits; single-digit codes are ignored and reported in the event log when a rebuild starts.
+- **Category code:** custom field "Teileart-Code" (e.g. `621`), several codes separated by commas; a code also matches as prefix (`62` covers 620–629). Single-digit codes (`1` covers 1–1999) are allowed, e.g. for a collection category “All parts” with `1,2,3,4,5,6,7,9`; they are reported as a warning in the event log when a rebuild starts.
 - **Product code:** product custom fields `nova_teileart` / `nova_weitere_teilearten` (comma-separated), optionally property values; leading digits count (`621 Brake shoes`).
 - **On save** (ERP sync, administration, import) products are assigned to matching categories and outdated assignments removed. Only categories with a code are managed.
 - **Hidden properties:** the configured property groups are set to not filterable / not visible on the product page.

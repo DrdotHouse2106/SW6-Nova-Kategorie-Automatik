@@ -1,3 +1,6 @@
+# 1.2.2
+- Single-digit category codes are applied again (1.2.1 ignored them, which took collection categories such as “All parts” with `1,2,3,4,5,6,7,9` out of management). They are still reported as a warning in the event log when a reassignment starts
+
 # 1.2.1
 - A plugin update no longer reassigns the whole catalogue automatically – only when updating from a version before 1.2.0 (variant rules changed there). An update therefore never changes assignments unattended, e.g. while the ERP delivers empty part type fields. Rebuild as usual via "Reassign all products on save"
 - If a rebuild aborts because of an error (e.g. database timeout), it is now logged as an error with cause and progress in the event log and the lock is released immediately (previously only after 30 minutes, without an entry)
