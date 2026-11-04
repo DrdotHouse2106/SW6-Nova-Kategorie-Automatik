@@ -6,6 +6,7 @@ use Nova\KategorieAutomatik\Service\CategoryAssigner;
 use Psr\Log\LogLevel;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
@@ -37,8 +38,35 @@ class RebuildHandler
             return;
         }
 
-        $batch = $this->assigner->fetchProductBatch($message->afterAutoIncrement, self::BATCH);
-        $changed = $batch['ids'] === [] ? 0 : $this->assigner->assign($batch['ids'], Context::createDefaultContext());
+        try {
+            if ($message->afterAutoIncrement === 0) {
+                $ignored = $this->assigner->ignoredCategoryCodes();
+                if ($ignored !== []) {
+                    $this->assigner->protocol(LogLevel::WARNING, 'Kategorie-Codes mit weniger als ' . CategoryAssigner::MIN_CODE_LENGTH . ' Ziffern werden ignoriert', [
+                        'codes' => $ignored,
+                    ]);
+                }
+            }
+
+            $batch = $this->assigner->fetchProductBatch($message->afterAutoIncrement, self::BATCH);
+            $changed = $batch['ids'] === [] ? 0 : $this->assigner->assign($batch['ids'], Context::createDefaultContext());
+        } catch (\Throwable $e) {
+            // Sonst bliebe die Kette still stehen: „gestartet“ im Protokoll, aber nie „abgeschlossen“
+            try {
+                $state = $lock->finish($token);
+            } catch (\Throwable) {
+                $state = null; // Sperre läuft dann nach 30 Minuten ohne Lebenszeichen ab
+            }
+            $this->assigner->protocol(LogLevel::ERROR, 'Neuzuordnung abgebrochen – bitte über „Beim Speichern alle Artikel neu zuordnen“ neu starten', [
+                'fehler' => $e->getMessage(),
+                'abArtikel' => $message->afterAutoIncrement,
+                'artikel' => $state['processed'] ?? null,
+                'geaendert' => $state['changed'] ?? null,
+            ]);
+
+            // Kette ist beendet – eine Wiederholung dieser Nachricht würde nur verworfen
+            throw new UnrecoverableMessageHandlingException('Nova Kategorie-Automatik: Neuzuordnung abgebrochen', 0, $e);
+        }
 
         if (\count($batch['ids']) === self::BATCH) {
             $lock->progress($token, \count($batch['ids']), $changed);

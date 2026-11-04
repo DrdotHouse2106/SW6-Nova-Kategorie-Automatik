@@ -31,6 +31,9 @@ class CategoryAssigner
 {
     public const CONFIG = 'NovaKategorieAutomatik.config.';
 
+    /** Mindestlänge eines Kategorie-Codes; kürzere würden als Präfix zu viele Artikel erfassen */
+    public const MIN_CODE_LENGTH = 2;
+
     /** Nur diese Teile des Produkt-Indexers betreffen Kategorien; Preise, Bestand, Suche usw. bleiben unberührt */
     private const INDEXER_SKIP = [
         'product.stock',
@@ -47,6 +50,9 @@ class CategoryAssigner
 
     /** @var array<string, list<string>>|null Code → Kategorie-IDs, pro Anfrage zwischengespeichert */
     private ?array $codeMap = null;
+
+    /** @var array<string, string> zu kurze Kategorie-Codes aus dem letzten Aufbau der Code-Tabelle */
+    private array $ignoredCodes = [];
 
     private LoggerInterface $logger;
 
@@ -80,7 +86,11 @@ class CategoryAssigner
             $this->connection->insert('log_entry', [
                 'id' => Uuid::randomBytes(),
                 'message' => mb_substr($message, 0, 255),
-                'level' => $level === LogLevel::WARNING ? 300 : 200,
+                'level' => match ($level) {
+                    LogLevel::WARNING => 300,
+                    LogLevel::ERROR => 400,
+                    default => 200,
+                },
                 'channel' => 'nova_kategorie_automatik',
                 'context' => json_encode($context, \JSON_UNESCAPED_UNICODE | \JSON_INVALID_UTF8_SUBSTITUTE) ?: '{}',
                 'extra' => '{}',
@@ -303,6 +313,19 @@ class CategoryAssigner
     public function resetCache(): void
     {
         $this->codeMap = null;
+        $this->ignoredCodes = [];
+    }
+
+    /**
+     * Kategorie-Codes, die wegen zu geringer Länge ignoriert werden.
+     *
+     * @return list<string>
+     */
+    public function ignoredCategoryCodes(): array
+    {
+        $this->getCodeMap();
+
+        return array_values($this->ignoredCodes);
     }
 
     /**
@@ -322,11 +345,18 @@ class CategoryAssigner
         );
 
         $map = [];
+        $this->ignoredCodes = [];
         foreach ($rows as $row) {
             foreach (preg_split('/[\s,;]+/', (string) $row['code']) ?: [] as $code) {
-                if (preg_match('/^\d{1,4}$/', $code)) {
-                    $map[$code][$row['id']] = $row['id'];
+                if (preg_match('/^\d{1,4}$/', $code) !== 1) {
+                    continue;
                 }
+                // Ein einstelliger Code wäre Präfix eines ganzen Tausenderblocks („1“ → 1…1999) – ignorieren
+                if (\strlen($code) < self::MIN_CODE_LENGTH) {
+                    $this->ignoredCodes[$code] = $code;
+                    continue;
+                }
+                $map[$code][$row['id']] = $row['id'];
             }
         }
 

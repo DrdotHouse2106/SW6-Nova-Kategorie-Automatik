@@ -45,13 +45,22 @@ class NovaKategorieAutomatik extends Plugin
         $this->upsertCustomFields($updateContext->getContext());
     }
 
+    /** Updates von Versionen davor ordnen einmal alles neu zu (geänderte Regeln für Varianten in 1.2.0) */
+    private const REBUILD_BEFORE_VERSION = '1.2.0';
+
     /**
-     * Nach jedem Update einmal alle Artikel mit den aktuellen Codes neu zuordnen. Eine neue Kette löst
-     * eine laufende (auch aus der Vorversion eingereihte) ab, es läuft also nie mehr als eine.
+     * Nur beim Update von einer Version vor 1.2.0 einmal alle Artikel mit den aktuellen Codes neu zuordnen –
+     * die Regeln für Varianten haben sich dort geändert. Spätere Updates ordnen nichts unbeaufsichtigt neu zu
+     * (Neuzuordnung über den Schalter in der Konfiguration). Eine neue Kette löst eine laufende (auch aus der
+     * Vorversion eingereihte) ab, es läuft also nie mehr als eine.
      */
     public function postUpdate(UpdateContext $updateContext): void
     {
         parent::postUpdate($updateContext);
+
+        if (!version_compare($updateContext->getCurrentPluginVersion(), self::REBUILD_BEFORE_VERSION, '<')) {
+            return;
+        }
 
         try {
             $config = $this->container?->get(SystemConfigService::class);
@@ -110,8 +119,8 @@ class NovaKategorieAutomatik extends Plugin
                 'config' => [
                     'label' => ['de-DE' => 'Teileart-Code', 'en-GB' => 'Part type code'],
                     'helpText' => [
-                        'de-DE' => 'Z. B. 621. Artikel, deren Eigenschaft „Teileart“ oder „Weitere Teilearten“ mit diesem Code beginnt, werden dieser Kategorie fest zugeordnet. Mehrere Codes mit Komma trennen. Leer = Kategorie wird nicht automatisch befüllt. Der Code ist im Shop nicht sichtbar.',
-                        'en-GB' => 'E.g. 621. Products whose part type property starts with this code are assigned to this category. Separate several codes with commas. Empty = not managed. Not visible in the storefront.',
+                        'de-DE' => 'Z. B. 621 (mindestens zwei Ziffern). Artikel, deren Eigenschaft „Teileart“ oder „Weitere Teilearten“ mit diesem Code beginnt, werden dieser Kategorie fest zugeordnet. Mehrere Codes mit Komma trennen. Leer = Kategorie wird nicht automatisch befüllt. Der Code ist im Shop nicht sichtbar.',
+                        'en-GB' => 'E.g. 621 (at least two digits). Products whose part type property starts with this code are assigned to this category. Separate several codes with commas. Empty = not managed. Not visible in the storefront.',
                     ],
                     'componentName' => 'sw-field',
                     'customFieldType' => 'text',

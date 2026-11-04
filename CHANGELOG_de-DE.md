@@ -1,3 +1,8 @@
+# 1.2.1
+- Nach einem Plugin-Update wird nicht mehr automatisch der ganze Katalog neu zugeordnet – nur noch beim Update von einer Version vor 1.2.0 (dort haben sich die Regeln für Varianten geändert). So ändert ein Update keine Zuordnungen unbeaufsichtigt, etwa wenn das ERP gerade leere Teileart-Felder liefert. Neuzuordnen wie gewohnt über „Beim Speichern alle Artikel neu zuordnen“
+- Bricht eine Neuzuordnung wegen eines Fehlers ab (z. B. Datenbank-Zeitüberschreitung), steht das jetzt als Fehler mit Ursache und Fortschritt im Ereignisprotokoll, und die Sperre wird sofort freigegeben (bisher erst nach 30 Minuten, ohne Eintrag)
+- Kategorie-Codes brauchen mindestens **zwei Ziffern**. Ein einstelliger Code wie `1` erfasste als Präfix alle Artikel von 1 bis 1999; solche Codes werden ignoriert (die Kategorie wird dann nicht mehr verwaltet, vorhandene Zuordnungen bleiben stehen) und beim Start einer Neuzuordnung als Warnung gemeldet
+
 # 1.2.0
 - Neuzuordnung verwendet immer die aktuellen Kategorie-Codes: Der Hintergrund-Worker hielt bisher die Codes vom ersten Lauf im Speicher und ordnete nach späteren Änderungen mit alten Codes zu
 - Nach dem Update startet das Plugin einmal automatisch eine Neuzuordnung aller Artikel mit den aktuellen Codes (nur wenn „Aktiv“ eingeschaltet ist)

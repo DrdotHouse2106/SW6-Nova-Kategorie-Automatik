@@ -2,11 +2,11 @@
 
 Shopware 6 plugin: assigns products **permanently** to categories whose **part type code** matches a product property – no dynamic product groups. Codes stay invisible in the storefront.
 
-- **Category code:** custom field "Teileart-Code" (e.g. `621`), several codes separated by commas; a code also matches as prefix (`62` covers 620–629).
+- **Category code:** custom field "Teileart-Code" (e.g. `621`), several codes separated by commas; a code also matches as prefix (`62` covers 620–629). Category codes need at least two digits; single-digit codes are ignored and reported in the event log when a rebuild starts.
 - **Product code:** product custom fields `nova_teileart` / `nova_weitere_teilearten` (comma-separated), optionally property values; leading digits count (`621 Brake shoes`).
 - **On save** (ERP sync, administration, import) products are assigned to matching categories and outdated assignments removed. Only categories with a code are managed.
 - **Hidden properties:** the configured property groups are set to not filterable / not visible on the product page.
-- **Rebuild:** switch "Reassign all products on save" runs in the background in batches of 200 (requires the message queue), always with the current codes; at most one run at a time. Started once automatically after each plugin update. The stored switch resets itself; reload the page to see it.
+- **Rebuild:** switch "Reassign all products on save" runs in the background in batches of 200 (requires the message queue), always with the current codes; at most one run at a time. Started once automatically only when updating from a version before 1.2.0; later updates do not reassign anything unattended. An aborted run is logged as an error. The stored switch resets itself; reload the page to see it.
 - **Variants** are evaluated via their parent product and inherit its categories.
 - **Log:** removed assignments and rebuild start/end appear under Settings → System → Event logs.
 

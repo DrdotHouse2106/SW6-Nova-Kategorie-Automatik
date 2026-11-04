@@ -1,3 +1,8 @@
+# 1.2.1
+- A plugin update no longer reassigns the whole catalogue automatically – only when updating from a version before 1.2.0 (variant rules changed there). An update therefore never changes assignments unattended, e.g. while the ERP delivers empty part type fields. Rebuild as usual via "Reassign all products on save"
+- If a rebuild aborts because of an error (e.g. database timeout), it is now logged as an error with cause and progress in the event log and the lock is released immediately (previously only after 30 minutes, without an entry)
+- Category codes need at least **two digits**. A single-digit code such as `1` matched all products from 1 to 1999 as prefix; such codes are ignored (the category is no longer managed, existing assignments stay) and reported as a warning when a rebuild starts
+
 # 1.2.0
 - Rebuild always uses the current category codes (the background worker kept the codes of its first run in memory)
 - After the update, a rebuild of all products is started once automatically (only if active)
