@@ -67,6 +67,10 @@ Shopware-6-Plugin: ordnet Artikel **fest** den Kategorien zu, deren **Teileart-C
 
 **Lösung:** Werte im Format „621 Bremsbacken“ anlegen und die Eigenschaft in der Konfiguration auswählen; danach den Artikel speichern oder *Neu zuordnen*
 
+## Entstehung
+
+Dieses Plugin ist mit Unterstützung von KI entstanden (Claude von Anthropic). Die Anforderungen kommen aus dem täglichen Betrieb mehrerer Shopware-Shops; der Code wurde mit KI geschrieben und überarbeitet. Geprüft wird er mit automatischen Tests und statischer Analyse (soweit im Repository vorhanden), mit regelmäßigen Sicherheitsprüfungen des Codes und im Echtbetrieb in den eigenen Shops. Trotzdem gilt: Nutzung auf eigene Verantwortung und ohne Garantie (siehe Lizenz). Fehler und Verbesserungsvorschläge bitte als Issue melden. Mehr zum Hintergrund: [SW6-Nova-Plugins](https://github.com/DrdotHouse2106/SW6-Nova-Plugins).
+
 ## Lizenz
 
 MIT

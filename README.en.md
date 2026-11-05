@@ -13,3 +13,7 @@ Shopware 6 plugin: assigns products **permanently** to categories whose **part t
 Configuration: *Extensions → My extensions → Nova Category Automation → Configure* (all sales channels).
 
 License: MIT
+
+## How this plugin was made
+
+This plugin was developed with the help of AI (Claude by Anthropic). The requirements come from running several Shopware shops day to day; the code was written and revised with AI. It is checked with automated tests and static analysis (where present in the repository), regular security reviews of the code and in production use in the author's own shops. Still: use at your own risk and without warranty (see license). Please report bugs and suggestions as an issue. More background: [SW6-Nova-Plugins](https://github.com/DrdotHouse2106/SW6-Nova-Plugins).
